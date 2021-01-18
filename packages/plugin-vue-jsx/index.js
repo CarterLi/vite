@@ -1,4 +1,4 @@
-// @ts-check
+const fs = require('fs')
 const babel = require('@babel/core')
 const jsx = require('@vue/babel-plugin-jsx')
 const importMeta = require('@babel/plugin-syntax-import-meta')
@@ -34,17 +34,16 @@ function ssrRegisterHelper(comp, filename) {
 function vueJsxPlugin(options = {}) {
   let needHmr = false
   let needSourceMap = true
+  let tsconfig
 
   return {
     name: 'vue-jsx',
 
     config(config) {
       return {
-        // only apply esbuild to ts files
-        // since we are handling jsx and tsx now
-        esbuild: {
-          include: /\.ts$/
-        },
+        // jsx and tsx? are handled by this plugin
+        // disable esbuild
+        esbuild: false,
         define: {
           __VUE_OPTIONS_API__: true,
           __VUE_PROD_DEVTOOLS__: false,
@@ -71,15 +70,41 @@ function vueJsxPlugin(options = {}) {
     },
 
     transform(code, id, ssr) {
-      if (/\.[jt]sx$/.test(id)) {
-        const plugins = [importMeta, [jsx, options]]
-        if (id.endsWith('.tsx')) {
-          plugins.push([
-            require('@babel/plugin-transform-typescript'),
-            // @ts-ignore
-            { isTSX: true, allowExtensions: true }
-          ])
+      if (/\.(jsx|tsx?)$/.test(id)) {
+        if (/\.tsx?/.test(id)) {
+          const ts = require('typescript')
+          if (!tsconfig) {
+            const configPath = ts.findConfigFile(
+              './',
+              ts.sys.fileExists,
+              'tsconfig.json'
+            )
+            if (!configPath) {
+              throw new Error("Could not find a valid 'tsconfig.json'.")
+            }
+            const { config, error } = ts.readConfigFile(configPath, (path) =>
+              fs.readFileSync(path, 'utf8')
+            )
+            if (error) throw new Error(error.messageText)
+            tsconfig = config
+            Object.assign(tsconfig.compilerOptions, {
+              sourceMap: false,
+              inlineSourceMap: needSourceMap,
+              inlineSources: needSourceMap
+            })
+          }
+          const { outputText, diagnostics } = ts.transpileModule(code, {
+            compilerOptions: tsconfig.compilerOptions,
+            fileName: id,
+            reportDiagnostics: true
+          })
+          if (diagnostics?.[0]) throw new Error(diagnostics[0].messageText)
+          code = outputText
         }
+
+        /** @type {any[]} */
+        const plugins = [importMeta]
+        if (id.endsWith('x')) plugins.push([jsx, options])
 
         const result = babel.transformSync(code, {
           ast: true,
