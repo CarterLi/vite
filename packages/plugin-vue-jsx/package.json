@@ -1,8 +1,16 @@
 {
-  "name": "@vitejs/plugin-vue-jsx",
+  "name": "vite-plugin-ts",
   "version": "1.1.0",
   "license": "MIT",
   "author": "Evan You",
+  "maintainers": [
+    "CarterLi"
+  ],
+  "keywords": [
+    "vite",
+    "typescript",
+    "tsx"
+  ],
   "files": [
     "index.js",
     "index.d.ts"
@@ -18,12 +26,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vitejs/vite.git"
+    "url": "git+https://github.com/CarterLi/vite.git"
   },
   "bugs": {
-    "url": "https://github.com/vitejs/vite/issues"
+    "url": "https://github.com/CarterLi/vite/issues"
   },
-  "homepage": "https://github.com/vitejs/vite/tree/main/packages/plugin-vue-jsx#readme",
+  "homepage": "https://github.com/CarterLi/vite/tree/main/packages/plugin-vue-jsx#readme",
   "dependencies": {
     "@babel/core": "^7.12.10",
     "@babel/plugin-syntax-import-meta": "^7.10.4",

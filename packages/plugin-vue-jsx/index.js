@@ -31,7 +31,7 @@ function ssrRegisterHelper(comp, filename) {
  * @param {import('@vue/babel-plugin-jsx').VueJSXPluginOptions} options
  * @returns {import('vite').Plugin}
  */
-function vueJsxPlugin(options = {}) {
+function tsPlugin(options = {}) {
   let needHmr = false
   let needSourceMap = true
   let tsconfig
@@ -276,5 +276,5 @@ function isDefineComponentCall(node) {
   )
 }
 
-module.exports = vueJsxPlugin
-vueJsxPlugin.default = vueJsxPlugin
+module.exports = tsPlugin
+tsPlugin.default = tsPlugin
